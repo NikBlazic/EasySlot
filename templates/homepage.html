@@ -8,25 +8,6 @@
 </head>
 <body>
 
-<h2>Login</h2>
-<form method="POST" action="{{ url_for('login') }}">
-    <div>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required placeholder="Enter your username">
-    </div>
-    <div>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required placeholder="Enter your password">
-    </div>
-    <div>
-        <button type="submit">Login</button>
-    </div>
-</form>
-{% if error %}
-    <div>
-        <p>{{ error }}</p>
-    </div>
-{% endif %}
-
+<a href="/login">Login</a>
 </body>
 </html>
