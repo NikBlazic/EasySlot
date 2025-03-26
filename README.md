@@ -1,1 +1,2 @@
-nigger
+nik je mali peder
+
