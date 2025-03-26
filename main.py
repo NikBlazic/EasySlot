@@ -43,5 +43,6 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
 
+#nik je velik prijazen prijatelj z malim čmarom
 if __name__ == "__main__":
     app.run(debug=True)
