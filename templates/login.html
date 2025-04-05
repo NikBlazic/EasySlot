@@ -3,29 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}">
     <title>Login</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 420px;
+            text-align: left;
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+
+        .logo span {
+            color: #3b82f6;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            border: 1px solid #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem 0;
+            background-color: transparent;
+            text-align: center;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background-color: #e0f2fe;
+            color: #2563eb;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        input {
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        button {
+            padding: 0.75rem;
+            border: none;
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+      function switchMode(mode) {
+        const isSignup = mode === 'signup';
+  
+        document.getElementById('mode').value = mode;
+        document.getElementById('login-button').textContent = isSignup ? 'Sign Up' : 'Login';
+  
+        document.getElementById('email-field').classList.toggle('hidden', !isSignup);
+  
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(mode + '-tab').classList.add('active');
+      }
+  
+      window.addEventListener('DOMContentLoaded', () => {
+        switchMode('login');
+      });
+    </script>
 </head>
 <body>
+<div class="container">
+    <div class="logo">Easy<span>Slot</span></div>
 
-<h2>Login</h2>
-<form method="POST" action="{{ url_for('login') }}">
-    <div>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required placeholder="Enter your username">
+    <div class="tabs">
+        <div class="tab active" id="login-tab" onclick="switchMode('login')">Login</div>
+        <div class="tab" id="signup-tab" onclick="switchMode('signup')">Sign Up</div>
     </div>
-    <div>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required placeholder="Enter your password">
-    </div>
-    <div>
-        <button type="submit">Login</button>
-    </div>
-</form>
-{% if error %}
-    <div>
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <input type="hidden" name="mode" id="mode" value="login">
+
+        <div>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required placeholder="Username">
+        </div>
+
+        <div id="email-field" class="hidden">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Email">
+        </div>
+
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Password">
+        </div>
+
+        <div>
+            <button type="submit" id="login-button">Login</button>
+        </div>
+    </form>
+
+    {% if error %}
+    <div class="error-message">
         <p>{{ error }}</p>
     </div>
-{% endif %}
+    {% endif %}
+</div>
 </body>
 </html>
