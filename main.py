@@ -6,9 +6,13 @@ db = TinyDB("users.json")
 users = db.table("uporabniki")
 User = Query()
 
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
 @app.route("/")
-def homepage():
-    return render_template("homepage.html")
+def links():
+    return render_template("links.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
