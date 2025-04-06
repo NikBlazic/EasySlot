@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasySlot Navigation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .sidebar {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: width 0.3s ease;
+            width: 250px;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 26px;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .logo-blue {
+            color: #4285F4;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .nav-menu {
+            padding: 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .nav-item.active {
+            background-color: #E8F0FE;
+            color: #4285F4;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 15px;
+            color: #666;
+        }
+
+        .nav-item.active i {
+            color: #4285F4;
+        }
+
+        .nav-label {
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .nav-label,
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+
+        .content-placeholder.sidebar-collapsed {
+            margin-left: 70px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo logo-text">
+                <span>Easy</span><span class="logo-blue">Slot</span>
+            </div>
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" data-page="dashboard">
+                <i class="fas fa-home"></i>
+                <span class="nav-label">Dashboard</span>
+            </div>
+            <div class="nav-item" data-page="businesses">
+                <i class="fas fa-users"></i>
+                <span class="nav-label">Businesses</span>
+            </div>
+            <div class="nav-item" data-page="profile">
+                <i class="fas fa-user"></i>
+                <span class="nav-label">Profile</span>
+            </div>
+            <div class="nav-item" data-page="settings">
+                <i class="fas fa-cog"></i>
+                <span class="nav-label">Settings</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const contentPlaceholder = document.getElementById('contentPlaceholder');
+            const toggleBtn = document.getElementById('toggleSidebar');
+
+            toggleBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                contentPlaceholder.classList.toggle('sidebar-collapsed');
+            });
+        });
+
+        window.EasySlotNav = {
+            toggleSidebar: function(collapse) {
+                const sidebar = document.getElementById('sidebar');
+                const contentPlaceholder = document.getElementById('contentPlaceholder');
+                
+                if (collapse === true) {
+                    sidebar.classList.add('collapsed');
+                    contentPlaceholder.classList.add('sidebar-collapsed');
+                } else if (collapse === false) {
+                    sidebar.classList.remove('collapsed');
+                    contentPlaceholder.classList.remove('sidebar-collapsed');
+                } else {
+                    sidebar.classList.toggle('collapsed');
+                    contentPlaceholder.classList.toggle('sidebar-collapsed');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
