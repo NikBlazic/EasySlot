@@ -138,6 +138,18 @@
             const contentPlaceholder = document.getElementById('contentPlaceholder');
             const toggleBtn = document.getElementById('toggleSidebar');
 
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    if (page === 'dashboard') {
+                        window.location.href = '/dashboard';
+                    } else if (page === 'businesses') {
+                        window.location.href = '/business';
+                    }
+                });
+            });
+
             toggleBtn.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
                 contentPlaceholder.classList.toggle('sidebar-collapsed');

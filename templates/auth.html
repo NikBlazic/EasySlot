@@ -135,7 +135,7 @@
         <div class="tab" id="signup-tab" onclick="switchMode('signup')">Sign Up</div>
     </div>
 
-    <form method="POST" action="{{ url_for('login') }}">
+    <form method="POST" action="{{ url_for('auth') }}">
         <input type="hidden" name="mode" id="mode" value="login">
 
         <div>
@@ -160,7 +160,7 @@
 
     {% if error %}
     <div class="error-message">
-        <p>{{ error }}</p>
+        {{ error }}
     </div>
     {% endif %}
 </div>
