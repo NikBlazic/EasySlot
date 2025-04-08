@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .sidebar-header h2 {
+            color: #3b82f6;
+            font-size: 24px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-button {
+            background-color: transparent;
+            border: none;
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #555;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .nav-button:hover {
+            background-color: #f5f7fb;
+        }
+
+        .nav-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .settings-header {
+            margin-bottom: 20px;
+        }
+
+        .settings-header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .settings-header p {
+            color: #666;
+        }
+
+        .settings-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .settings-section.active {
+            display: block;
+        }
+
+        .settings-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .settings-card h3 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .button:hover {
+            background-color: #2563eb;
+        }
+
+        .button.secondary {
+            background-color: #ef4444;
+        }
+
+        .button.secondary:hover {
+            background-color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Settings</h2>
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-button active" data-section="account">Account Settings</button>
+                <button class="nav-button" data-section="profile">Profile Settings</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="settings-header">
+                <h1 id="section-title">Account Settings</h1>
+                <p id="section-description">Manage your account settings and preferences</p>
+            </div>
+
+            
+            <div id="account-settings" class="settings-section active">
+                <div class="settings-card">
+                    <h3>Personal Information</h3>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" placeholder="Enter your name" value="{{ user.name if user and user.name else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" placeholder="Tell us about yourself">{{ user.bio if user and user.bio else '' }}</textarea>
+                    </div>
+                    <button class="button">Save Changes</button>
+                </div>
+            </div>
+
+            
+            <div id="profile-settings" class="settings-section">
+                <div class="settings-card">
+                    <h3>Login Information</h3>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="Enter your password">
+                    </div>
+                    <button class="button">Update Login Info</button>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <a href="/logout" class="button secondary">Log out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const navButtons = document.querySelectorAll('.nav-button');
+            const settingsSections = document.querySelectorAll('.settings-section');
+            const sectionTitle = document.getElementById('section-title');
+            const sectionDescription = document.getElementById('section-description');
+            
+            
+            const sectionContent = {
+                'account': {
+                    title: 'Account Settings',
+                    description: 'Manage your account settings and preferences'
+                },
+                'profile': {
+                    title: 'Profile Settings',
+                    description: 'Update your login information and security settings'
+                }
+            };
+            
+            
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    
+                    
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    
+                    settingsSections.forEach(section => section.classList.remove('active'));
+                    document.getElementById(`${section}-settings`).classList.add('active');
+                    
+                    
+                    sectionTitle.textContent = sectionContent[section].title;
+                    sectionDescription.textContent = sectionContent[section].description;
+                });
+            });
+
+            
+            const saveButton = document.querySelector('#account-settings .button');
+            saveButton.addEventListener('click', async function() {
+                const name = document.getElementById('name').value;
+                const bio = document.getElementById('bio').value;
+
+                try {
+                    const response = await fetch('/update_profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            bio: bio
+                        })
+                    });
+
+                    if (response.ok) {
+                        alert('Profile updated successfully!');
+                    } else {
+                        alert('Failed to update profile. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating your profile.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

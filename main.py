@@ -26,9 +26,37 @@ def dashboard():
 def links():
     return render_template("links.html")
 
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('auth'))
+
 @app.route("/settings")
 def settings():
-    return render_template("settings.html")
+    if 'username' not in session:
+        return redirect(url_for('auth'))
+    
+    user = users.get(User.username == session['username'])
+    return render_template("settings.html", user=user)
+
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    if 'username' not in session:
+        return jsonify({'error': 'Not authenticated'})
+    
+    try:
+        data = request.get_json()
+        name = data.get('name')
+        bio = data.get('bio')
+        
+        users.update({
+            'name': name,
+            'bio': bio
+        }, User.username == session['username'])
+        
+        return jsonify({'message': 'Profile updated successfully'})
+    except Exception as e:
+        return jsonify({'error': 'Failed to update profile'})
 
 @app.route("/business")
 def business():
