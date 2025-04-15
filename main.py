@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
+
 user_db = TinyDB("users.json")
 business_db = TinyDB("businesses.json")
 
@@ -58,13 +58,41 @@ def update_profile():
     except Exception as e:
         return jsonify({'error': 'Failed to update profile'})
 
-@app.route("/business")
-def business():
-    return render_template("/businesses/business.html")
+@app.route("/businesses")
+def business_page():
+    return render_template("/businesses/businesses.html")
 
-@app.route("/create_business")
+@app.route('/businesses/create', methods=["GET", "POST"])
 def create_business():
-    return render_template("/businesses/create_business.html")
+    if 'username' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    if request.method == "POST":
+        try:
+            business_name = request.form["businessName"]
+            business_type = request.form["businessType"]
+            business_email = request.form["businessEmail"]
+            phone_number = request.form["phoneNumber"]
+            business_address = request.form["businessAddress"]
+            business_description = request.form["businessDescription"]
+
+            if not all([business_name, business_type, business_email, phone_number, business_address, business_description]):
+                return jsonify({'error': 'All fields are required'}), 400
+
+            businesses.insert ({
+                'name': business_name,
+                'type': business_type,
+                'email': business_email,
+                'phone': phone_number,
+                'address': business_address,
+                'description': business_description,
+                'owner': session['username']
+            })
+            return jsonify({'message': 'Business successfully created'}), 201
+        except Exception as e:
+            return jsonify({'error': 'Failed to create business', 'details': str(e)}), 500
+
+    return render_template("/businesses/create.html")
 
 @app.route("/auth", methods=["GET", "POST"])
 def auth():

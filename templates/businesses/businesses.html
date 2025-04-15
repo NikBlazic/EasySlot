@@ -3,9 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>Dashboard</title>
+  <style>
+    body {
+      padding-left: 100px;
+    }
+  </style>
 </head>
 <body>
   {% include 'components/navigation.html' %}
   <h1>Business page</h1>
+  <button onclick="window.location.href='/businesses/create'">Create Business</button>
 </body>
 </html>
