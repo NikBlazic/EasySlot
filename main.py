@@ -26,12 +26,16 @@ def dashboard():
 def links():
     return render_template("links.html")
 
+@app.route("/profile")
+def profile():
+    return render_template("profile.html")
+
 @app.route('/logout')
 def logout():
     session.pop('username', None)
     return redirect(url_for('auth'))
 
-@app.route("/settings")
+@app.route("/settings", methods=["GET"])
 def settings():
     if 'username' not in session:
         return redirect(url_for('auth'))
@@ -39,7 +43,7 @@ def settings():
     user = users.get(User.username == session['username'])
     return render_template("settings.html", user=user)
 
-@app.route('/update_profile', methods=['POST'])
+@app.route('/update_profile', methods=["GET", "POST"])
 def update_profile():
     if 'username' not in session:
         return jsonify({'error': 'Not authenticated'})
