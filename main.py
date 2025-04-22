@@ -64,7 +64,8 @@ def update_profile():
 
 @app.route("/businesses")
 def business_page():
-    return render_template("/businesses/businesses.html")
+    all_businesses = businesses.all()
+    return render_template("/businesses/businesses.html", businesses=all_businesses)
 
 @app.route('/businesses/create', methods=["GET", "POST"])
 def create_business():

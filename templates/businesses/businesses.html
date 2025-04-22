@@ -1,17 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard</title>
-  <style>
-    body {
-      padding-left: 100px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Businesses</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      body {
+        padding-left: 200px;
+      }
+    </style>
 </head>
 <body>
-  {% include 'components/navigation.html' %}
-  <h1>Business page</h1>
-  <button onclick="window.location.href='/businesses/create'">Create Business</button>
+    {% include 'components/navigation.html' %}
+    <div class="container">
+        <div class="header">
+            <h1>Businesses</h1>
+            <a href="/businesses/create" class="create-btn">
+                <i class="fas fa-plus"></i> Create Business
+            </a>
+        </div>
+
+        <div class="businesses-grid">
+            {% for business in businesses %}
+            <div class="business-card">
+                <h2 class="business-name">{{ business.name }}</h2>
+                <span class="business-type">{{ business.type }}</span>
+                
+                <div class="business-info">
+                    <div class="info-item">
+                        <span>{{ business.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span>{{ business.phone }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span>{{ business.address }}</span>
+                    </div>
+                </div>
+
+                <p class="business-description">{{ business.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </body>
 </html>
