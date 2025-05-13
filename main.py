@@ -34,7 +34,13 @@ def links():
 
 @app.route("/profile")
 def profile():
-    return render_template("profile.html")
+    if 'username' not in session:
+        return redirect(url_for('auth'))
+    
+    # Get user's businesses
+    user_businesses = businesses.search(Business.owner == session['username'])
+    
+    return render_template("profile.html", businesses=user_businesses)
 
 @app.route('/logout')
 def logout():
@@ -56,12 +62,14 @@ def update_profile():
     
     try:
         data = request.get_json()
-        name = data.get('name')
-        bio = data.get('bio')
+        email = data.get('email')
+        phone = data.get('phone')
+        location = data.get('location')
         
         users.update({
-            'name': name,
-            'bio': bio
+            'email': email,
+            'phone': phone,
+            'location': location
         }, User.username == session['username'])
         
         return jsonify({'message': 'Profile updated successfully'})
