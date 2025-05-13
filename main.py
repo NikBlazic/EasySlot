@@ -2,24 +2,30 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from tinydb import TinyDB, Query
 from dotenv import load_dotenv
 import os
+from datetime import datetime, date
+import calendar
 
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
-user_db = TinyDB("users.json")
+users_db = TinyDB("users.json")
 business_db = TinyDB("businesses.json")
+calendars_db = TinyDB("calendars.json")
 
-users = user_db.table("users")
+users = users_db.table("users")
 businesses = business_db.table("businesses")
+calendars = calendars_db.table("calendars")
 
 User = Query()
 Business = Query()
+Calendars = Query()
 
 @app.route("/dashboard")
 def dashboard():
     if 'username' not in session:
         return redirect(url_for('auth'))
+
     return render_template("dashboard.html", username=session['username'])
 
 @app.route("/")
@@ -46,7 +52,7 @@ def settings():
 @app.route('/update_profile', methods=["GET", "POST"])
 def update_profile():
     if 'username' not in session:
-        return jsonify({'error': 'Not authenticated'})
+        return redirect(url_for('auth'))
     
     try:
         data = request.get_json()
@@ -64,13 +70,16 @@ def update_profile():
 
 @app.route("/businesses")
 def business_page():
+    if 'username' not in session:
+        return redirect(url_for('auth'))
+
     all_businesses = businesses.all()
-    return render_template("/businesses/businesses.html", businesses=all_businesses)
+    return render_template("/businesses/businesses.html", businesses=all_businesses, current_user=session['username'])
 
 @app.route('/businesses/create', methods=["GET", "POST"])
 def create_business():
     if 'username' not in session:
-        return jsonify({'error': 'Not authenticated'}), 401
+        return redirect(url_for('auth'))
 
     if request.method == "POST":
         try:
@@ -82,7 +91,7 @@ def create_business():
             business_description = request.form["businessDescription"]
 
             if not all([business_name, business_type, business_email, phone_number, business_address, business_description]):
-                return jsonify({'error': 'All fields are required'}), 400
+                return render_template("/businesses/create.html", error="All fields are required")
 
             businesses.insert ({
                 'name': business_name,
@@ -93,9 +102,9 @@ def create_business():
                 'description': business_description,
                 'owner': session['username']
             })
-            return jsonify({'message': 'Business successfully created'}), 201
+            return redirect(url_for('dashboard'))
         except Exception as e:
-            return jsonify({'error': 'Failed to create business', 'details': str(e)}), 500
+            return render_template("/businesses/create.html", error=f"Failed to create business: {str(e)}")
 
     return render_template("/businesses/create.html")
 
@@ -141,6 +150,34 @@ def auth():
             return render_template("auth.html", error="An error occurred")
 
     return render_template("auth.html")
+
+@app.route("/businesses/<business_id>/calendar", methods=["GET", "POST"])
+def show_calendar(business_id):
+    try:
+        month = int(request.args.get('month', datetime.now().month))
+        year = int(request.args.get('year', datetime.now().year))
+    except (TypeError, ValueError):
+        month = datetime.now().month
+        year = datetime.now().year
+    
+    cal = calendar.monthcalendar(year, month)
+    month_name = calendar.month_name[month]
+    today = date.today()
+    business = businesses.get(doc_id=int(business_id))
+
+    if business:
+        business_name = business['name']
+    else:
+        business_name = 'Unknown Business'
+    
+    return render_template('businesses/calendar.html',
+                         year=year,
+                         month=month,
+                         month_name=month_name,
+                         calendar=cal,
+                         today=today,
+                         business_id=business_id,
+                         business_name=business_name)
 
 if __name__ == "__main__":
     app.run(debug=True)

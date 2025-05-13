@@ -6,9 +6,158 @@
     <title>Businesses</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-      body {
-        padding-left: 200px;
-      }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            padding-left: 200px;
+            color: #333;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+        }
+
+        .create-btn {
+            background-color: #4285F4;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .create-btn:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .businesses-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .business-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            min-width: 0;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .business-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .business-name {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .business-type, .owner-badge {
+            font-size: 13px;
+            padding: 3px 10px;
+        }
+
+        .business-type {
+            display: inline-block;
+            background-color: #E8F0FE;
+            color: #4285F4;
+            border-radius: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .owner-badge {
+            display: inline-block;
+            background-color: #E6F4EA;
+            color: #137333;
+            border-radius: 16px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .business-info {
+            margin: 16px 0;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .info-item i {
+            color: #4285F4;
+            width: 16px;
+        }
+
+        .business-description {
+            font-size: 13px;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: 1400px) {
+            .businesses-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .businesses-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-left: 0;
+            }
+
+            .businesses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -23,24 +172,34 @@
 
         <div class="businesses-grid">
             {% for business in businesses %}
-            <div class="business-card">
+            <a href="/businesses/{{ business.doc_id }}/calendar" class="business-card">
                 <h2 class="business-name">{{ business.name }}</h2>
-                <span class="business-type">{{ business.type }}</span>
+                <div>
+                    <span class="business-type">{{ business.type }}</span>
+                    {% if business.owner == current_user %}
+                    <span class="owner-badge">
+                        <i class="fas fa-crown"></i> Owner
+                    </span>
+                    {% endif %}
+                </div>
                 
                 <div class="business-info">
                     <div class="info-item">
+                        <i class="fas fa-envelope"></i>
                         <span>{{ business.email }}</span>
                     </div>
                     <div class="info-item">
+                        <i class="fas fa-phone"></i>
                         <span>{{ business.phone }}</span>
                     </div>
                     <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
                         <span>{{ business.address }}</span>
                     </div>
                 </div>
 
                 <p class="business-description">{{ business.description }}</p>
-            </div>
+            </a>
             {% endfor %}
         </div>
     </div>
