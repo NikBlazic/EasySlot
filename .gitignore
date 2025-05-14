@@ -4,7 +4,6 @@ businesses.json
 calendars.json
 .env
 
-# Python cache files
 __pycache__/
 *.py[cod]
 *$py.class

@@ -177,6 +177,18 @@ def show_calendar(business_id):
     else:
         business_name = 'Unknown Business'
     
+    start_date = f"{year}-{month:02d}-01"
+    if month == 12:
+        end_date = f"{year+1}-01-01"
+    else:
+        end_date = f"{year}-{month+1:02d}-01"
+    
+    appointment_slots = calendars.search(
+        (Calendars.business_id == int(business_id)) &
+        (Calendars.date >= start_date) &
+        (Calendars.date < end_date)
+    )
+    
     return render_template('businesses/calendar.html',
                          year=year,
                          month=month,
@@ -184,7 +196,44 @@ def show_calendar(business_id):
                          calendar=cal,
                          today=today,
                          business_id=business_id,
-                         business_name=business_name)
+                         business_name=business_name,
+                         appointment_slots=appointment_slots)
+
+@app.route("/businesses/<business_id>/add_slot", methods=["GET", "POST"])
+def add_appointment_slot(business_id):
+    if 'username' not in session:
+        return redirect(url_for('auth'))
+    
+    business = businesses.get(doc_id=int(business_id))
+    if not business:
+        return redirect(url_for('business_page'))
+    
+    if request.method == "POST":
+        try:
+            date_str = request.form.get('date')
+            start_time = request.form.get('start_time')
+            end_time = request.form.get('end_time')
+            duration = int(request.form.get('duration'))
+            
+            calendars.insert({
+                'business_id': int(business_id),
+                'date': date_str,
+                'start_time': start_time,
+                'end_time': end_time,
+                'duration': duration,
+                'available': True
+            })
+            
+            return redirect(url_for('show_calendar', business_id=business_id))
+        except Exception as e:
+            return render_template('businesses/add_appointment_slot.html', 
+                                business_id=business_id,
+                                business_name=business['name'],
+                                error=str(e))
+    
+    return render_template('businesses/add_appointment_slot.html',
+                         business_id=business_id,
+                         business_name=business['name'])
 
 if __name__ == "__main__":
     app.run(debug=True)
