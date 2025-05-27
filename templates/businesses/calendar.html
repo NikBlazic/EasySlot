@@ -158,10 +158,49 @@
 
         .appointment-slot.booked {
             background-color: #ffcdd2;
+            color: #b71c1c;
         }
 
         .appointment-slot.booked:hover {
             background-color: #ef9a9a;
+        }
+
+        .appointment-slot.user-booked {
+            background-color: #1b5e20;
+            color: white;
+        }
+
+        .appointment-slot.user-booked:hover {
+            background-color: #2e7d32;
+        }
+
+        .appointment-slot.owner-view {
+            background-color: #1976d2;
+            color: white;
+        }
+
+        .appointment-slot.owner-view:hover {
+            background-color: #1565c0;
+        }
+
+        .appointment-form {
+            display: inline;
+        }
+
+        .appointment-button {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            color: inherit;
+            font-size: inherit;
+        }
+
+        .appointment-button:disabled {
+            cursor: default;
         }
     </style>
 </head>
@@ -170,6 +209,10 @@
     <div class="container mt-4">
         <h2>Calendar - {{ business_name }}</h2>
         
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        
         <div class="card">
             <div class="card-body">
                 <div class="calendar-header d-flex justify-content-between align-items-center mb-4">
@@ -177,7 +220,9 @@
                     <div class="btn-group">
                         <a href="{{ url_for('show_calendar', business_id=business_id, month=month-1, year=year) if month > 1 else url_for('show_calendar', business_id=business_id, month=12, year=year-1) }}" class="btn btn-outline-primary">Previous</a>
                         <a href="{{ url_for('show_calendar', business_id=business_id, month=month+1, year=year) if month < 12 else url_for('show_calendar', business_id=business_id, month=1, year=year+1) }}" class="btn btn-outline-primary">Next</a>
+                        {% if is_owner %}
                         <a href="{{ url_for('add_appointment_slot', business_id=business_id) }}" class="btn btn-success">Add Slot</a>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="calendar-grid">
@@ -198,9 +243,29 @@
                                         <div class="day-number">{{ day }}</div>
                                         {% for slot in appointment_slots %}
                                             {% if slot.date == '%04d-%02d-%02d'|format(year, month, day) %}
-                                                <div class="appointment-slot {% if not slot.available %}booked{% endif %}" 
+                                                {% set is_user_booked = false %}
+                                                {% for appointment in user_appointments %}
+                                                    {% if appointment.slot_id == slot.doc_id %}
+                                                        {% set is_user_booked = true %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <div class="appointment-slot 
+                                                    {% if is_owner and not slot.available %}owner-view
+                                                    {% elif is_user_booked %}user-booked
+                                                    {% elif not slot.available %}booked
+                                                    {% endif %}" 
                                                      title="{{ slot.start_time }} - {{ slot.end_time }}">
-                                                    {{ slot.start_time }} - {{ slot.end_time }}
+                                                    {% if slot.available and not is_user_booked and not is_owner %}
+                                                        <form class="appointment-form" action="{{ url_for('book_appointment', business_id=business_id) }}" method="POST">
+                                                            <input type="hidden" name="slot_id" value="{{ slot.doc_id }}">
+                                                            <input type="hidden" name="date" value="{{ slot.date }}">
+                                                            <button type="submit" class="appointment-button">
+                                                                {{ slot.start_time }} - {{ slot.end_time }}
+                                                            </button>
+                                                        </form>
+                                                    {% else %}
+                                                        {{ slot.start_time }} - {{ slot.end_time }}
+                                                    {% endif %}
                                                 </div>
                                             {% endif %}
                                         {% endfor %}
@@ -213,6 +278,5 @@
             </div>
         </div>
     </div>
-
 </body>
 </html> 

@@ -1,0 +1,1 @@
+{"appointments": {"1": {"user": "test2", "business_id": 1, "slot_id": 1, "date": "2025-05-28", "start_time": "15:00", "end_time": "16:00", "duration": 60}, "2": {"user": "test2", "business_id": 1, "slot_id": 2, "date": "2025-05-30", "start_time": "12:00", "end_time": "13:00", "duration": 60}}}
