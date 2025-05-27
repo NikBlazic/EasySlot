@@ -2,6 +2,8 @@ tiny.db
 users.json
 businesses.json
 calendars.json
+appointments.json
+
 .env
 
 __pycache__/

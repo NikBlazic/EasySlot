@@ -12,14 +12,17 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY')
 users_db = TinyDB("users.json")
 business_db = TinyDB("businesses.json")
 calendars_db = TinyDB("calendars.json")
+appointments_db = TinyDB("appointments.json")
 
 users = users_db.table("users")
 businesses = business_db.table("businesses")
 calendars = calendars_db.table("calendars")
+appointments = appointments_db.table("appointments")
 
 User = Query()
 Business = Query()
 Calendars = Query()
+Appointments = Query()
 
 @app.route("/dashboard")
 def dashboard():
@@ -172,10 +175,8 @@ def show_calendar(business_id):
     today = date.today()
     business = businesses.get(doc_id=int(business_id))
 
-    if business:
-        business_name = business['name']
-    else:
-        business_name = 'Unknown Business'
+    business_name = business['name']
+    is_owner = business['owner'] == session.get('username')
     
     start_date = f"{year}-{month:02d}-01"
     if month == 12:
@@ -188,6 +189,8 @@ def show_calendar(business_id):
         (Calendars.date >= start_date) &
         (Calendars.date < end_date)
     )
+
+    user_appointments = appointments.search(Appointments.user == session['username'])
     
     return render_template('businesses/calendar.html',
                          year=year,
@@ -197,7 +200,9 @@ def show_calendar(business_id):
                          today=today,
                          business_id=business_id,
                          business_name=business_name,
-                         appointment_slots=appointment_slots)
+                         appointment_slots=appointment_slots,
+                         user_appointments=user_appointments,
+                         is_owner=is_owner)
 
 @app.route("/businesses/<business_id>/add_slot", methods=["GET", "POST"])
 def add_appointment_slot(business_id):
@@ -234,6 +239,71 @@ def add_appointment_slot(business_id):
     return render_template('businesses/add_appointment_slot.html',
                          business_id=business_id,
                          business_name=business['name'])
+
+@app.route("/businesses/<business_id>/book_appointment", methods=["POST"])
+def book_appointment(business_id):
+    if 'username' not in session:
+        return redirect(url_for('auth'))
+    
+    try:
+        slot_id = request.form.get('slot_id')
+        date_str = request.form.get('date')
+        
+        if not slot_id or not date_str:
+            return render_template('businesses/calendar.html',
+                                error="Invalid appointment data",
+                                business_id=business_id,
+                                business_name=businesses.get(doc_id=int(business_id))['name'],
+                                calendar=calendar.monthcalendar(datetime.now().year, datetime.now().month),
+                                month=datetime.now().month,
+                                year=datetime.now().year,
+                                month_name=calendar.month_name[datetime.now().month],
+                                today=date.today(),
+                                appointment_slots=calendars.search(Calendars.business_id == int(business_id)),
+                                user_appointments=appointments.search(Appointments.user == session['username']),
+                                is_owner=businesses.get(doc_id=int(business_id))['owner'] == session['username'])
+        
+        slot = calendars.get(doc_id=int(slot_id))
+        if not slot or not slot['available']:
+            return render_template('businesses/calendar.html',
+                                error="This slot is no longer available",
+                                business_id=business_id,
+                                business_name=businesses.get(doc_id=int(business_id))['name'],
+                                calendar=calendar.monthcalendar(datetime.now().year, datetime.now().month),
+                                month=datetime.now().month,
+                                year=datetime.now().year,
+                                month_name=calendar.month_name[datetime.now().month],
+                                today=date.today(),
+                                appointment_slots=calendars.search(Calendars.business_id == int(business_id)),
+                                user_appointments=appointments.search(Appointments.user == session['username']),
+                                is_owner=businesses.get(doc_id=int(business_id))['owner'] == session['username'])
+        
+        appointments.insert({
+            'user': session['username'],
+            'business_id': int(business_id),
+            'slot_id': int(slot_id),
+            'date': date_str,
+            'start_time': slot['start_time'],
+            'end_time': slot['end_time'],
+            'duration': slot['duration']
+        })
+        
+        calendars.update({'available': False}, doc_ids=[int(slot_id)])
+        
+        return redirect(url_for('show_calendar', business_id=business_id))
+    except Exception as e:
+        return render_template('businesses/calendar.html',
+                            error=f"Failed to book appointment: {str(e)}",
+                            business_id=business_id,
+                            business_name=businesses.get(doc_id=int(business_id))['name'],
+                            calendar=calendar.monthcalendar(datetime.now().year, datetime.now().month),
+                            month=datetime.now().month,
+                            year=datetime.now().year,
+                            month_name=calendar.month_name[datetime.now().month],
+                            today=date.today(),
+                            appointment_slots=calendars.search(Calendars.business_id == int(business_id)),
+                            user_appointments=appointments.search(Appointments.user == session['username']),
+                            is_owner=businesses.get(doc_id=int(business_id))['owner'] == session['username'])
 
 if __name__ == "__main__":
     app.run(debug=True)
