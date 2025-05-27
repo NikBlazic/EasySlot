@@ -185,15 +185,17 @@
             <div id="account-settings" class="settings-section active">
                 <div class="settings-card">
                     <h3>Personal Information</h3>
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" placeholder="Enter your name" value="{{ user.name if user and user.name else '' }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="bio">Bio</label>
-                        <textarea id="bio" placeholder="Tell us about yourself">{{ user.bio if user and user.bio else '' }}</textarea>
-                    </div>
-                    <button class="button">Save Changes</button>
+                    <form action="{{ url_for('update_profile') }}" method="POST">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" placeholder="Enter your name" value="{{ user.name if user and user.name else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="bio">Bio</label>
+                            <textarea id="bio" name="bio" placeholder="Tell us about yourself">{{ user.bio if user and user.bio else '' }}</textarea>
+                        </div>
+                        <button type="submit" class="button">Save Changes</button>
+                    </form>
                 </div>
             </div>
 
@@ -201,15 +203,17 @@
             <div id="profile-settings" class="settings-section">
                 <div class="settings-card">
                     <h3>Login Information</h3>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" placeholder="Enter your password">
-                    </div>
-                    <button class="button">Update Login Info</button>
+                    <form action="{{ url_for('update_login') }}" method="POST">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" value="{{ user.email if user and user.email else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" placeholder="Enter your password">
+                        </div>
+                        <button type="submit" class="button">Update Login Info</button>
+                    </form>
                 </div>
                 
                 <div style="margin-top: 30px;">
@@ -221,70 +225,31 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            
             const navButtons = document.querySelectorAll('.nav-button');
-            const settingsSections = document.querySelectorAll('.settings-section');
+            const sections = document.querySelectorAll('.settings-section');
             const sectionTitle = document.getElementById('section-title');
             const sectionDescription = document.getElementById('section-description');
-            
-            
-            const sectionContent = {
-                'account': {
-                    title: 'Account Settings',
-                    description: 'Manage your account settings and preferences'
-                },
-                'profile': {
-                    title: 'Profile Settings',
-                    description: 'Update your login information and security settings'
-                }
-            };
-            
-            
+
             navButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    const section = this.getAttribute('data-section');
-                    
-                    
                     navButtons.forEach(btn => btn.classList.remove('active'));
+                    sections.forEach(section => section.classList.remove('active'));
+
                     this.classList.add('active');
-                    
-                    
-                    settingsSections.forEach(section => section.classList.remove('active'));
-                    document.getElementById(`${section}-settings`).classList.add('active');
-                    
-                    
-                    sectionTitle.textContent = sectionContent[section].title;
-                    sectionDescription.textContent = sectionContent[section].description;
-                });
-            });
 
-            
-            const saveButton = document.querySelector('#account-settings .button');
-            saveButton.addEventListener('click', async function() {
-                const name = document.getElementById('name').value;
-                const bio = document.getElementById('bio').value;
+                    // Show corresponding section
+                    const sectionId = this.getAttribute('data-section');
+                    const targetSection = document.getElementById(`${sectionId}-settings`);
+                    targetSection.classList.add('active');
 
-                try {
-                    const response = await fetch('/update_profile', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            name: name,
-                            bio: bio
-                        })
-                    });
-
-                    if (response.ok) {
-                        alert('Profile updated successfully!');
-                    } else {
-                        alert('Failed to update profile. Please try again.');
+                    if (sectionId === 'account') {
+                        sectionTitle.textContent = 'Account Settings';
+                        sectionDescription.textContent = 'Manage your account settings and preferences';
+                    } else if (sectionId === 'profile') {
+                        sectionTitle.textContent = 'Profile Settings';
+                        sectionDescription.textContent = 'Update your login information and preferences';
                     }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('An error occurred while updating your profile.');
-                }
+                });
             });
         });
     </script>

@@ -30,11 +30,6 @@
             margin: 20px 0 30px 0;
         }
 
-        .header h1 {
-            font-size: 28px;
-            color: #333;
-        }
-
         .create-btn {
             background-color: #4285F4;
             color: white;
@@ -298,37 +293,23 @@
             background-color: #f1f3f4;
             color: #5f6368;
         }
+
+        h1, h2 {
+            font-size: 28px;
+            color: #333;
+            margin: 20px 20px;
+        }
+
     </style>
 </head>
 <body>
     {% include 'components/navigation.html' %}
-    <div class="header">
-        <h1 class="page-title">Profile</h1>
-    </div>
-
-    <div class="profile-section">
-        <div class="profile-header">
-            <h2 class="profile-title">Personal Information</h2>
-        </div>
-        <div class="profile-info">
-            <div class="info-item">
-                <i class="fas fa-envelope"></i> user@example.com
-            </div>
-            <div class="info-item">
-                <i class="fas fa-phone"></i> +1 234 567 890
-            </div>
-            <div class="info-item">
-                <i class="fas fa-location-dot"></i> 123 Main Street, City, Country
-            </div>
-        </div>
-    </div>
-
-    <h2 class="section-title">My Business</h2>
+    <h1>My Business</h1>
     <div class="businesses-grid">
         {% if businesses %}
             {% for business in businesses %}
             <a href="/businesses/{{ business.doc_id }}/calendar" class="business-card">
-                <h2 class="business-name">{{ business.name }}</h2>
+                <h1 class="business-name">{{ business.name }}</h1>
                 <div>
                     <span class="business-type">{{ business.type }}</span>
                     <span class="owner-badge">
@@ -363,6 +344,39 @@
             </div>
         {% endif %}
     </div>
-    </script>
+    
+    <h1>Personal information</h1>
+    <div class="profile-section" style="margin-top: 40px;">
+        <div class="profile-header">
+            <a href="{{ url_for('settings') }}" class="edit-btn" style="position: absolute; right: 30px; top: 30px;">
+                <i class="fas fa-edit"></i>
+                Edit Profile
+            </a>
+        </div>
+        <div class="profile-info">
+            <div class="info-item">
+                <i class="fas fa-user"></i>
+                <span class="info-label">Name:</span>
+                <span>
+                    {% if user and user.name %}
+                        {{ user.name }}
+                    {% else %}
+                        Not set
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-book"></i>
+                <span class="info-label">Bio:</span>
+                <span>
+                    {% if user and user.bio %}
+                        {{ user.bio }}
+                    {% else %}
+                        Not set
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
