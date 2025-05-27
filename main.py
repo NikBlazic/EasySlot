@@ -37,9 +37,10 @@ def profile():
     if 'username' not in session:
         return redirect(url_for('auth'))
     
+    user = users.get(User.username == session['username'])
     user_businesses = businesses.search(Business.owner == session['username'])
     
-    return render_template("profile.html", businesses=user_businesses)
+    return render_template("profile.html", businesses=user_businesses, user=user)
 
 @app.route('/logout')
 def logout():
@@ -54,26 +55,23 @@ def settings():
     user = users.get(User.username == session['username'])
     return render_template("settings.html", user=user)
 
-@app.route('/update_profile', methods=["GET", "POST"])
+@app.route('/update_profile', methods=["POST"])
 def update_profile():
     if 'username' not in session:
         return redirect(url_for('auth'))
     
     try:
-        data = request.get_json()
-        email = data.get('email')
-        phone = data.get('phone')
-        location = data.get('location')
+        name = request.form.get('name')
+        bio = request.form.get('bio')
         
         users.update({
-            'email': email,
-            'phone': phone,
-            'location': location
+            'name': name,
+            'bio': bio
         }, User.username == session['username'])
         
-        return jsonify({'message': 'Profile updated successfully'})
+        return redirect(url_for('settings'))
     except Exception as e:
-        return jsonify({'error': 'Failed to update profile'})
+        return redirect(url_for('settings'))
 
 @app.route("/businesses")
 def business_page():
@@ -234,6 +232,30 @@ def add_appointment_slot(business_id):
     return render_template('businesses/add_appointment_slot.html',
                          business_id=business_id,
                          business_name=business['name'])
+
+@app.route('/update_login', methods=["POST"])
+def update_login():
+    if 'username' not in session:
+        return redirect(url_for('auth'))
+    
+    try:
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        update_data = {}
+        if email:
+            update_data['email'] = email
+        if password:
+            update_data['password'] = password
+            
+        if update_data:
+            users.update(update_data, User.username == session['username'])
+            return redirect(url_for('settings'))
+        else:
+            return redirect(url_for('settings'))
+            
+    except Exception as e:
+        return redirect(url_for('settings'))
 
 if __name__ == "__main__":
     app.run(debug=True)
